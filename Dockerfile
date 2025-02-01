@@ -1,21 +1,17 @@
 # Base image: Ruby with necessary dependencies for Jekyll
 FROM ruby:3.2
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    nodejs \
-    && rm -rf /var/lib/apt/lists/*
-
 # Set the working directory inside the container
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Copy Gemfile into the container (necessary for `bundle install`)
-COPY Gemfile ./
+COPY Gemfile .
 
-# Install bundler and dependencies
-RUN gem install bundler:2.3.26 && bundle install
+# Install bundler and dependencies + pre-link config
+RUN gem install bundler:2.3.26 && bundle install && ln -s src/_config.yml src/_config_docker.yml .
 
-# Command to serve the Jekyll site
-CMD ["jekyll", "serve", "-H", "0.0.0.0", "-w", "--config", "_config.yml,_config_docker.yml"]
+# Enable configurations specific to the docker environment (_config_docker.yml)
+ENV JEKYLL_ENV=docker
 
+# Command to serve the Jekyll site mounted at /app/src (having a subdir prevents polluting the repo with build files)
+CMD ["jekyll", "s", "-H", "0.0.0.0", "-w", "--config", "_config.yml,_config_docker.yml", "-s", "src"]
