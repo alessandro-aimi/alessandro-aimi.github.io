@@ -1,0 +1,9 @@
+services:
+  dev-server:
+    build: .
+    tty: true
+    ports: [8080:8080]
+    volumes:
+      - ./content:/usr/src/app/content
+      - ./quartz.config.ts:/usr/src/app/quartz.config.ts
+      - ./quartz.layout.ts:/usr/src/app/quartz.layout.ts
